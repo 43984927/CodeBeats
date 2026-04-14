@@ -17,7 +17,7 @@ Transform your source code into music. Every function becomes a melody, every lo
 
 ---
 
-<img src="https://via.placeholder.com/800x450?text=CodeBeats+Demo+Screenshot" alt="CodeBeats Demo" width="800"/>
+<img src="public/banner.svg" alt="CodeBeats Banner" width="800"/>
 
 </div>
 

@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0c29"/>
+      <stop offset="50%" style="stop-color:#302b63"/>
+      <stop offset="100%" style="stop-color:#24243e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#f093fb"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#4facfe"/>
+      <stop offset="100%" style="stop-color:#00f2fe"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#43e97b"/>
+      <stop offset="100%" style="stop-color:#38f9d7"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg)"/>
+
+  <g opacity="0.15">
+    <rect x="40" y="50" width="3" height="350" rx="1.5" fill="#667eea"/>
+    <rect x="55" y="80" width="3" height="320" rx="1.5" fill="#667eea"/>
+    <rect x="70" y="120" width="3" height="280" rx="1.5" fill="#667eea"/>
+    <rect x="85" y="60" width="3" height="340" rx="1.5" fill="#667eea"/>
+    <rect x="100" y="150" width="3" height="250" rx="1.5" fill="#667eea"/>
+    <rect x="115" y="90" width="3" height="310" rx="1.5" fill="#667eea"/>
+    <rect x="130" y="110" width="3" height="290" rx="1.5" fill="#667eea"/>
+    <rect x="145" y="70" width="3" height="330" rx="1.5" fill="#667eea"/>
+    <rect x="160" y="130" width="3" height="270" rx="1.5" fill="#667eea"/>
+    <rect x="175" y="100" width="3" height="300" rx="1.5" fill="#667eea"/>
+  </g>
+
+  <g transform="translate(50, 180)" filter="url(#glow)">
+    <rect x="0" y="60" width="8" height="100" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="14" y="30" width="8" height="130" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="28" y="50" width="8" height="110" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="42" y="10" width="8" height="150" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="56" y="70" width="8" height="90" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="70" y="40" width="8" height="120" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="84" y="20" width="8" height="140" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="98" y="55" width="8" height="105" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="112" y="35" width="8" height="125" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="126" y="65" width="8" height="95" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="140" y="25" width="8" height="135" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="154" y="45" width="8" height="115" rx="4" fill="url(#bar1)" opacity="0.9"/>
+  </g>
+
+  <g transform="translate(580, 180)" filter="url(#glow)">
+    <rect x="0" y="45" width="8" height="115" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="14" y="25" width="8" height="135" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="28" y="60" width="8" height="100" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="42" y="35" width="8" height="125" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="56" y="15" width="8" height="145" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="70" y="50" width="8" height="110" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="84" y="30" width="8" height="130" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="98" y="55" width="8" height="105" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="112" y="20" width="8" height="140" rx="4" fill="url(#bar1)" opacity="0.9"/>
+    <rect x="126" y="40" width="8" height="120" rx="4" fill="url(#bar3)" opacity="0.9"/>
+    <rect x="140" y="70" width="8" height="90" rx="4" fill="url(#bar2)" opacity="0.9"/>
+    <rect x="154" y="50" width="8" height="110" rx="4" fill="url(#bar1)" opacity="0.9"/>
+  </g>
+
+  <g filter="url(#softGlow)">
+    <text x="400" y="140" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="64" font-weight="bold" fill="white">
+      🎵 CodeBeats
+    </text>
+    <text x="400" y="185" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="22" fill="#b8c1ec" letter-spacing="3">
+      HEAR WHAT YOUR CODE SOUNDS LIKE
+    </text>
+  </g>
+
+  <rect x="250" y="210" width="300" height="3" rx="1.5" fill="url(#accent)" opacity="0.6"/>
+
+  <g transform="translate(0, 0)" opacity="0.7">
+    <text x="400" y="260" text-anchor="middle" font-family="'Courier New', monospace" font-size="16" fill="#a5b4fc">
+      function → 🎵 Melody    |    for/while → 🔄 Rhythm
+    </text>
+    <text x="400" y="285" text-anchor="middle" font-family="'Courier New', monospace" font-size="16" fill="#a5b4fc">
+      if/else → 🔀 Harmony   |    class → 🏛️ Chord
+    </text>
+  </g>
+
+  <g transform="translate(0, 0)">
+    <rect x="180" y="320" width="100" height="32" rx="16" fill="url(#accent)" opacity="0.8"/>
+    <text x="230" y="341" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="white">🎹 6 Styles</text>
+
+    <rect x="300" y="320" width="100" height="32" rx="16" fill="url(#accent)" opacity="0.8"/>
+    <text x="350" y="341" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="white">🌐 5 Langs</text>
+
+    <rect x="420" y="320" width="100" height="32" rx="16" fill="url(#accent)" opacity="0.8"/>
+    <text x="470" y="341" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="white">📊 Viz</text>
+
+    <rect x="540" y="320" width="100" height="32" rx="16" fill="url(#accent)" opacity="0.8"/>
+    <text x="590" y="341" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" font-weight="bold" fill="white">🎯 Zero BE</text>
+  </g>
+
+  <g transform="translate(0, 0)" opacity="0.5">
+    <text x="400" y="400" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="14" fill="#7f8ea3">
+      React 18 + TypeScript + Tone.js + Canvas 2D
+    </text>
+  </g>
+
+  <g filter="url(#softGlow)" opacity="0.4">
+    <circle cx="680" cy="80" r="40" fill="#667eea" opacity="0.15"/>
+    <circle cx="120" cy="380" r="50" fill="#764ba2" opacity="0.15"/>
+    <circle cx="720" cy="350" r="30" fill="#4facfe" opacity="0.15"/>
+  </g>
+
+  <g transform="translate(250, 80)" opacity="0.3">
+    <text x="0" y="0" font-family="'Courier New', monospace" font-size="11" fill="#667eea">♪</text>
+    <text x="30" y="-15" font-family="'Courier New', monospace" font-size="14" fill="#764ba2">♫</text>
+    <text x="60" y="5" font-family="'Courier New', monospace" font-size="10" fill="#4facfe">♩</text>
+    <text x="90" y="-10" font-family="'Courier New', monospace" font-size="12" fill="#43e97b">♬</text>
+    <text x="120" y="0" font-family="'Courier New', monospace" font-size="11" fill="#f093fb">♪</text>
+    <text x="150" y="-8" font-family="'Courier New', monospace" font-size="13" fill="#667eea">♫</text>
+    <text x="180" y="3" font-family="'Courier New', monospace" font-size="10" fill="#00f2fe">♩</text>
+    <text x="210" y="-12" font-family="'Courier New', monospace" font-size="14" fill="#764ba2">♬</text>
+    <text x="240" y="-2" font-family="'Courier New', monospace" font-size="11" fill="#43e97b">♪</text>
+    <text x="270" y="-18" font-family="'Courier New', monospace" font-size="12" fill="#4facfe">♫</text>
+  </g>
+</svg>
