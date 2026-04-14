@@ -4,7 +4,7 @@
 
 **Hear What Your Code Sounds Like**
 
-[![GitHub Stars](https://img.shields.io/github/stars/your-username/CodeBeats?style=social)](https://github.com/your-username/CodeBeats)
+[![GitHub Stars](https://img.shields.io/github/stars/43984927/CodeBeats?style=social)](https://github.com/43984927/CodeBeats)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
@@ -54,7 +54,7 @@ Transform your source code into music. Every function becomes a melody, every lo
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/CodeBeats.git
+git clone https://github.com/43984927/CodeBeats.git
 cd CodeBeats
 
 # Install dependencies
@@ -153,7 +153,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-username/CodeBeats.git
+git clone https://github.com/43984927/CodeBeats.git
 cd CodeBeats
 
 # 安装依赖
@@ -223,6 +223,6 @@ CodeBeats/
 
 **Made with 🎵 and ❤️**
 
-[⭐ Star us on GitHub](https://github.com/your-username/CodeBeats) · [🐛 Report Bug](https://github.com/your-username/CodeBeats/issues) · [💡 Request Feature](https://github.com/your-username/CodeBeats/issues)
+[⭐ Star us on GitHub](https://github.com/43984927/CodeBeats) · [🐛 Report Bug](https://github.com/43984927/CodeBeats/issues) · [💡 Request Feature](https://github.com/43984927/CodeBeats/issues)
 
 </div>
