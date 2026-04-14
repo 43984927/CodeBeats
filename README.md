@@ -8,6 +8,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
+[![GitHub Pages](https://img.shields.io/badge/Demo-Live%20Online-success.svg)](https://43984927.github.io/CodeBeats/)
+
+🚀 **[Try it online → https://43984927.github.io/CodeBeats/](https://43984927.github.io/CodeBeats/)**
 
 Transform your source code into music. Every function becomes a melody, every loop creates a rhythm, and every conditional triggers a chord change.
 
