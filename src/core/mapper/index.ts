@@ -77,6 +77,97 @@ const STYLE_CONFIG: Record<MusicStyle, {
   lofi: { bpm: 85, defaultInstrument: 'EPiano', bassInstrument: 'Bass', drumInstrument: 'LoFiDrums', padInstrument: 'VinylPad', swingFactor: 0.15, reverbMix: 0.6 },
 }
 
+interface ChordDef {
+  root: number
+  type: 'major' | 'minor' | 'dim' | 'dom7' | 'min7' | 'maj7'
+}
+
+const CHORD_PROGRESSIONS: Record<string, ChordDef[][]> = {
+  major: [
+    [{ root: 0, type: 'maj7' }, { root: 3, type: 'min7' }, { root: 4, type: 'dom7' }, { root: 0, type: 'maj7' }],
+    [{ root: 0, type: 'major' }, { root: 5, type: 'major' }, { root: 3, type: 'minor' }, { root: 4, type: 'major' }],
+    [{ root: 0, type: 'maj7' }, { root: 4, type: 'dom7' }, { root: 5, type: 'dom7' }, { root: 0, type: 'maj7' }],
+    [{ root: 0, type: 'major' }, { root: 3, type: 'minor' }, { root: 4, type: 'major' }, { root: 5, type: 'major' }],
+  ],
+  minor: [
+    [{ root: 0, type: 'min7' }, { root: 3, type: 'maj7' }, { root: 5, type: 'min7' }, { root: 4, type: 'dom7' }],
+    [{ root: 0, type: 'minor' }, { root: 5, type: 'minor' }, { root: 3, type: 'major' }, { root: 4, type: 'minor' }],
+    [{ root: 0, type: 'min7' }, { root: 6, type: 'maj7' }, { root: 5, type: 'dom7' }, { root: 0, type: 'min7' }],
+  ],
+  pentatonic: [
+    [{ root: 0, type: 'major' }, { root: 4, type: 'major' }, { root: 5, type: 'major' }, { root: 0, type: 'major' }],
+  ],
+  blues: [
+    [{ root: 0, type: 'dom7' }, { root: 4, type: 'dom7' }, { root: 0, type: 'dom7' }, { root: 5, type: 'dom7' }],
+    [{ root: 0, type: 'dom7' }, { root: 3, type: 'dom7' }, { root: 4, type: 'dom7' }, { root: 0, type: 'dom7' }],
+  ],
+  dorian: [
+    [{ root: 0, type: 'min7' }, { root: 3, type: 'dom7' }, { root: 4, type: 'min7' }, { root: 0, type: 'min7' }],
+    [{ root: 0, type: 'min7' }, { root: 5, type: 'min7' }, { root: 3, type: 'dom7' }, { root: 4, type: 'dom7' }],
+  ],
+  mixolydian: [
+    [{ root: 0, type: 'dom7' }, { root: 3, type: 'min7' }, { root: 4, type: 'major' }, { root: 0, type: 'dom7' }],
+  ],
+  japanese: [
+    [{ root: 0, type: 'minor' }, { root: 4, type: 'major' }, { root: 0, type: 'minor' }],
+  ],
+}
+
+const CHORD_INTERVALS: Record<string, number[]> = {
+  major: [0, 4, 7],
+  minor: [0, 3, 7],
+  dim: [0, 3, 6],
+  dom7: [0, 4, 7, 10],
+  min7: [0, 3, 7, 10],
+  maj7: [0, 4, 7, 11],
+}
+
+function getChordPitches(chord: ChordDef, keyRoot: number, scale: MusicalScale, octave: number): number[] {
+  const intervals = CHORD_INTERVALS[chord.type]
+  const scaleIntervals = SCALES[scale]
+  const chordRoot = getScaleNote(scale, keyRoot, chord.root, octave)
+  return intervals.map(i => chordRoot + i)
+}
+
+function getChordToneDegrees(chord: ChordDef, scale: MusicalScale): number[] {
+  const scaleIntervals = SCALES[scale]
+  const chordIntervals = CHORD_INTERVALS[chord.type]
+  const chordRootInterval = scaleIntervals[chord.root % scaleIntervals.length]
+  return chordIntervals.map(ci => {
+    const target = chordRootInterval + ci
+    for (let d = 0; d < scaleIntervals.length * 2; d++) {
+      const si = scaleIntervals[d % scaleIntervals.length] + Math.floor(d / scaleIntervals.length) * 12
+      if (si === target) return d
+    }
+    return chord.root
+  })
+}
+
+class ChordProgressionEngine {
+  private progression: ChordDef[] = []
+  private currentIndex = 0
+
+  constructor(scale: MusicalScale, elementCount: number) {
+    const available = CHORD_PROGRESSIONS[scale] || CHORD_PROGRESSIONS.major
+    const selected = available[elementCount % available.length]
+    this.progression = selected
+  }
+
+  next(): ChordDef {
+    const chord = this.progression[this.currentIndex % this.progression.length]
+    this.currentIndex++
+    return chord
+  }
+
+  current(): ChordDef {
+    return this.progression[(this.currentIndex - 1 + this.progression.length) % this.progression.length]
+  }
+
+  peek(): ChordDef {
+    return this.progression[this.currentIndex % this.progression.length]
+  }
+}
+
 function selectKeyAndScale(stats: CodeStats, language: string, complexity: number): { key: string; scale: MusicalScale } {
   const keys = ['C', 'D', 'E', 'F', 'G', 'A', 'Bb']
   let key: string
@@ -131,9 +222,31 @@ function nameToSeed(name: string): number {
   return Math.abs(hash)
 }
 
+function nearestChordTone(pitch: number, chord: ChordDef, keyRoot: number, scale: MusicalScale, octave: number): number {
+  const chordPitches = getChordPitches(chord, keyRoot, scale, octave)
+  let best = chordPitches[0]
+  let bestDist = Math.abs(pitch - best)
+  for (const cp of chordPitches) {
+    const d = Math.abs(pitch - cp)
+    if (d < bestDist) {
+      bestDist = d
+      best = cp
+    }
+  }
+  const chordPitchesUp = getChordPitches(chord, keyRoot, scale, octave + 1)
+  for (const cp of chordPitchesUp) {
+    const d = Math.abs(pitch - cp)
+    if (d < bestDist) {
+      bestDist = d
+      best = cp
+    }
+  }
+  return best
+}
+
 type ConfigType = ReturnType<typeof selectKeyAndScale>
 
-function mapFunction(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapFunction(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const nameSeed = element.name ? nameToSeed(element.name) % 7 : 0
@@ -142,55 +255,88 @@ function mapFunction(element: CodeElement, config: ConfigType, style: MusicStyle
   const baseOctave = 4 + Math.min(element.depth, 3)
   const isAsync = element.properties?.async
   const isExported = element.properties?.exported
+  const chordTones = getChordToneDegrees(chord, config.scale)
 
   if (style === 'piano') {
     const melodyLength = Math.max(8, Math.min(16, (element.name?.length || 4) * 2))
-    const pianoDurations = ['4n', '8n', '8n', '4n', '8n', '8n', '2n', '4n', '8n', '8n', '4n', '8n', '8n', '2n', '4n', '1n']
-    const pianoIntervals = [0, 2, 4, 5, 4, 2, 0, -1, 0, 2, 4, 7, 5, 4, 2, 0]
+    const chordPitches = getChordPitches(chord, root, config.scale, baseOctave - 1)
+
+    for (const p of chordPitches) {
+      notes.push({
+        pitch: p,
+        duration: '1n',
+        velocity: 0.18,
+        time: startTime,
+        instrument: styleCfg.padInstrument,
+      })
+    }
+
+    notes.push({
+      pitch: getScaleNote(config.scale, root, chord.root, baseOctave - 2),
+      duration: '1n',
+      velocity: 0.35,
+      time: startTime,
+      instrument: styleCfg.bassInstrument,
+    })
+
+    const pianoPatterns: number[][] = [
+      [0, 1, 2, 0, 1, 2, 0, 1],
+      [2, 1, 0, 1, 2, 0, 1, 0],
+      [0, 2, 1, 0, 2, 1, 0, 2],
+    ]
+    const pattern = pianoPatterns[nameSeed % pianoPatterns.length]
+    const pianoDurations = ['4n', '8n', '8n', '4n', '8n', '8n', '2n', '4n']
 
     for (let i = 0; i < melodyLength; i++) {
-      const interval = pianoIntervals[i % pianoIntervals.length]
-      const degree = ((nameSeed + interval) % 7 + 7) % 7
-      const octaveShift = interval < 0 ? -1 : (interval > 5 ? 1 : 0)
-      const pitch = getScaleNote(config.scale, root, degree, baseOctave + octaveShift)
-      const duration = pianoDurations[i % pianoDurations.length]
-      const velocity = i === 0 ? 0.85
-        : i === melodyLength - 1 ? 0.9
-        : 0.55 + (i % 3 === 0 ? 0.15 : 0)
+      const toneIdx = pattern[i % pattern.length] % chordTones.length
+      const degree = chordTones[toneIdx]
+      const isStrong = i % 4 === 0
+      const pitch = isStrong
+        ? getScaleNote(config.scale, root, degree, baseOctave)
+        : getScaleNote(config.scale, root, (degree + (i % 2 === 0 ? 1 : -1) + 7) % 7, baseOctave)
 
       notes.push({
         pitch,
-        duration,
-        velocity,
+        duration: pianoDurations[i % pianoDurations.length],
+        velocity: isStrong ? 0.8 : (i === melodyLength - 1 ? 0.85 : 0.5),
         time: startTime + i * 0.25,
         instrument: styleCfg.defaultInstrument,
         effect: isAsync ? 'delay' : undefined,
       })
-
-      if (i % 4 === 3 && i < melodyLength - 1) {
-        const chordDeg = [0, 2, 4]
-        for (const d of chordDeg) {
-          notes.push({
-            pitch: getScaleNote(config.scale, root, (nameSeed + d) % 7, baseOctave - 1),
-            duration: '2n',
-            velocity: 0.25,
-            time: startTime + i * 0.25,
-            instrument: styleCfg.padInstrument,
-          })
-        }
-      }
     }
   } else {
     const melodyLength = Math.max(6, Math.min(12, (element.name?.length || 4) * 2))
     const durations = ['16n', '8n', '16n', '8n', '16n', '4n', '16n', '8n', '16n', '8n', '16n', '2n']
+    const chordPitches = getChordPitches(chord, root, config.scale, baseOctave - 1)
+
+    for (const p of chordPitches) {
+      notes.push({
+        pitch: p,
+        duration: '2n',
+        velocity: 0.3,
+        time: startTime,
+        instrument: styleCfg.padInstrument,
+      })
+    }
+
+    notes.push({
+      pitch: getScaleNote(config.scale, root, chord.root, baseOctave - 2),
+      duration: '2n',
+      velocity: 0.5,
+      time: startTime,
+      instrument: styleCfg.bassInstrument,
+    })
 
     for (let i = 0; i < melodyLength; i++) {
-      const degree = (nameSeed + i * (i % 2 === 0 ? 2 : 3)) % 7
+      const isStrong = i % 4 === 0
+      const degree = isStrong
+        ? chordTones[i % chordTones.length]
+        : (chordTones[i % chordTones.length] + (i % 2 === 0 ? 1 : -1) + 7) % 7
       const pitch = getScaleNote(config.scale, root, degree, baseOctave)
       const duration = durations[i % durations.length]
       const velocity = isExported
         ? (i === 0 ? 1.0 : 0.8)
-        : (i === 0 ? 0.9 : 0.65 + (i % 3) * 0.05)
+        : (isStrong ? 0.9 : 0.6)
 
       notes.push({
         pitch,
@@ -202,11 +348,11 @@ function mapFunction(element: CodeElement, config: ConfigType, style: MusicStyle
       })
 
       if (i % 4 === 3 && i < melodyLength - 1) {
-        const passingDegree = (nameSeed + i * 2 + 1) % 7
+        const passingDegree = (chordTones[0] + 1) % 7
         notes.push({
           pitch: getScaleNote(config.scale, root, passingDegree, baseOctave),
           duration: '32n',
-          velocity: 0.45,
+          velocity: 0.4,
           time: startTime + i * 0.125 + 0.0625,
           instrument: styleCfg.defaultInstrument,
         })
@@ -217,29 +363,26 @@ function mapFunction(element: CodeElement, config: ConfigType, style: MusicStyle
   return notes
 }
 
-function mapLoop(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapLoop(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
-
   const isNested = element.depth > 1
+  const chordTones = getChordToneDegrees(chord, config.scale)
 
   if (style === 'piano') {
-    const arpeggioPatterns = [
-      [0, 2, 4, 7, 4, 2],
-      [0, 3, 5, 7, 5, 3],
-      [0, 1, 4, 6, 4, 1],
-    ]
-    const pattern = arpeggioPatterns[nameToSeed(element.name || 'loop') % arpeggioPatterns.length]
+    const arpeggioIdx = nameToSeed(element.name || 'loop') % chordTones.length
+    const pattern = chordTones.slice(arpeggioIdx, arpeggioIdx + 3).length >= 3
+      ? chordTones.slice(arpeggioIdx, arpeggioIdx + 3)
+      : [...chordTones.slice(arpeggioIdx), ...chordTones.slice(0, 3 - (chordTones.length - arpeggioIdx))]
     const repeats = isNested ? 3 : 2
 
     for (let r = 0; r < repeats; r++) {
       for (let i = 0; i < pattern.length; i++) {
-        const degree = pattern[i]
-        const octave = degree >= 5 ? 5 : 4
-        const pitch = getScaleNote(config.scale, root, degree % 7, octave)
+        const degree = pattern[i % pattern.length]
+        const pitch = getScaleNote(config.scale, root, degree, 4 + (i >= 3 ? 1 : 0))
         const time = startTime + (r * pattern.length + i) * 0.2
-        const velocity = i === 0 ? 0.75 : (i === pattern.length - 1 ? 0.65 : 0.5)
+        const velocity = i === 0 ? 0.7 : (i === pattern.length - 1 ? 0.6 : 0.45)
 
         notes.push({
           pitch,
@@ -252,24 +395,22 @@ function mapLoop(element: CodeElement, config: ConfigType, style: MusicStyle, st
     }
 
     notes.push({
-      pitch: getScaleNote(config.scale, root, 0, 3),
+      pitch: getScaleNote(config.scale, root, chord.root, 3),
       duration: '2n',
-      velocity: 0.5,
+      velocity: 0.45,
       time: startTime,
       instrument: styleCfg.bassInstrument,
     })
 
-    if (isNested) {
-      const chordDegs = [0, 2, 4]
-      for (const d of chordDegs) {
-        notes.push({
-          pitch: getScaleNote(config.scale, root, d, 3),
-          duration: '1n',
-          velocity: 0.2,
-          time: startTime,
-          instrument: styleCfg.padInstrument,
-        })
-      }
+    const chordPitches = getChordPitches(chord, root, config.scale, 3)
+    for (const p of chordPitches) {
+      notes.push({
+        pitch: p,
+        duration: '1n',
+        velocity: 0.15,
+        time: startTime,
+        instrument: styleCfg.padInstrument,
+      })
     }
   } else {
     const beats = 8
@@ -325,11 +466,11 @@ function mapLoop(element: CodeElement, config: ConfigType, style: MusicStyle, st
         }
       }
 
-      if (i === 6) {
+      if (i === 0 || i === 4) {
         notes.push({
-          pitch: getScaleNote(config.scale, root, 1, 2),
+          pitch: getScaleNote(config.scale, root, chord.root, 2),
           duration: '4n',
-          velocity: 0.85,
+          velocity: 0.7,
           time,
           instrument: styleCfg.bassInstrument,
         })
@@ -340,51 +481,49 @@ function mapLoop(element: CodeElement, config: ConfigType, style: MusicStyle, st
   return notes
 }
 
-function mapConditional(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapConditional(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
-
   const isElse = element.name === 'else' || element.name === 'elif'
+  const chordPitches = getChordPitches(chord, root, config.scale, 3)
+  const chordTones = getChordToneDegrees(chord, config.scale)
 
   if (style === 'piano') {
-    const chordDegrees = isElse ? [0, 2, 4] : [0, 3, 5]
-    for (let i = 0; i < chordDegrees.length; i++) {
-      const deg = chordDegrees[i]
+    for (let i = 0; i < chordPitches.length; i++) {
       notes.push({
-        pitch: getScaleNote(config.scale, root, deg, 3),
+        pitch: chordPitches[i],
         duration: '2n',
-        velocity: 0.45,
+        velocity: 0.35,
         time: startTime + i * 0.15,
         instrument: styleCfg.padInstrument,
       })
     }
 
-    const melodyDegrees = isElse ? [4, 5, 7, 5] : [1, 3, 5, 3]
-    for (let i = 0; i < melodyDegrees.length; i++) {
+    const melodyTones = isElse
+      ? [chordTones[2], chordTones[1], chordTones[0], chordTones[1]]
+      : [chordTones[0], chordTones[1], chordTones[2], chordTones[1]]
+    for (let i = 0; i < melodyTones.length; i++) {
       notes.push({
-        pitch: getScaleNote(config.scale, root, melodyDegrees[i] % 7, 5),
-        duration: i === melodyDegrees.length - 1 ? '4n' : '8n',
-        velocity: 0.6 + i * 0.05,
+        pitch: getScaleNote(config.scale, root, melodyTones[i], 5),
+        duration: i === melodyTones.length - 1 ? '4n' : '8n',
+        velocity: 0.55 + i * 0.05,
         time: startTime + i * 0.2,
         instrument: styleCfg.defaultInstrument,
       })
     }
   } else {
-    const chordDegrees = isElse ? [0, 2, 4] : [0, 3, 5]
-
-    for (const deg of chordDegrees) {
-      const pitch = getScaleNote(config.scale, root, deg, 3)
+    for (const p of chordPitches) {
       notes.push({
-        pitch,
+        pitch: p,
         duration: '2n',
-        velocity: 0.6,
+        velocity: 0.5,
         time: startTime,
         instrument: styleCfg.padInstrument,
       })
     }
 
-    const melodyDegree = isElse ? 4 : 1
+    const melodyDegree = isElse ? chordTones[2] : chordTones[0]
     notes.push({
       pitch: getScaleNote(config.scale, root, melodyDegree, 5),
       duration: '8n',
@@ -393,16 +532,16 @@ function mapConditional(element: CodeElement, config: ReturnType<typeof selectKe
       instrument: styleCfg.defaultInstrument,
     })
     notes.push({
-      pitch: getScaleNote(config.scale, root, melodyDegree + 2, 5),
+      pitch: getScaleNote(config.scale, root, chordTones[1], 5),
       duration: '8n',
       velocity: 0.6,
       time: startTime + 0.125,
       instrument: styleCfg.defaultInstrument,
     })
     notes.push({
-      pitch: getScaleNote(config.scale, root, melodyDegree + 4, 5),
+      pitch: getScaleNote(config.scale, root, chordTones[2], 5),
       duration: '4n',
-      velocity: 0.75,
+      velocity: 0.7,
       time: startTime + 0.25,
       instrument: styleCfg.defaultInstrument,
     })
@@ -411,47 +550,32 @@ function mapConditional(element: CodeElement, config: ReturnType<typeof selectKe
   return notes
 }
 
-function mapVariable(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapVariable(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
-
-  const nameSeed = element.name ? nameToSeed(element.name) % 5 : 0
+  const chordTones = getChordToneDegrees(chord, config.scale)
 
   if (style === 'piano') {
     notes.push({
-      pitch: getScaleNote(config.scale, root, nameSeed, 3),
+      pitch: getScaleNote(config.scale, root, chord.root, 3),
       duration: '2n',
-      velocity: 0.45,
+      velocity: 0.4,
       time: startTime,
       instrument: styleCfg.bassInstrument,
     })
-    notes.push({
-      pitch: getScaleNote(config.scale, root, nameSeed, 5),
-      duration: '4n',
-      velocity: 0.5,
-      time: startTime,
-      instrument: styleCfg.defaultInstrument,
-    })
-    notes.push({
-      pitch: getScaleNote(config.scale, root, nameSeed + 2, 5),
-      duration: '4n',
-      velocity: 0.45,
-      time: startTime + 0.25,
-      instrument: styleCfg.defaultInstrument,
-    })
-    notes.push({
-      pitch: getScaleNote(config.scale, root, nameSeed + 4, 5),
-      duration: '2n',
-      velocity: 0.55,
-      time: startTime + 0.5,
-      instrument: styleCfg.defaultInstrument,
-    })
+    for (let i = 0; i < Math.min(3, chordTones.length); i++) {
+      notes.push({
+        pitch: getScaleNote(config.scale, root, chordTones[i], 5),
+        duration: i === 0 ? '4n' : '8n',
+        velocity: 0.45 + i * 0.05,
+        time: startTime + i * 0.2,
+        instrument: styleCfg.defaultInstrument,
+      })
+    }
   } else {
-    const pitch = getScaleNote(config.scale, root, nameSeed, 2)
-
     notes.push({
-      pitch,
+      pitch: getScaleNote(config.scale, root, chord.root, 2),
       duration: '4n',
       velocity: 0.55,
       time: startTime,
@@ -459,7 +583,7 @@ function mapVariable(element: CodeElement, config: ReturnType<typeof selectKeyAn
     })
 
     notes.push({
-      pitch: getScaleNote(config.scale, root, nameSeed + 2, 2),
+      pitch: getScaleNote(config.scale, root, chordTones[1 % chordTones.length], 2),
       duration: '8n',
       velocity: 0.4,
       time: startTime + 0.25,
@@ -467,7 +591,7 @@ function mapVariable(element: CodeElement, config: ReturnType<typeof selectKeyAn
     })
 
     notes.push({
-      pitch: getScaleNote(config.scale, root, nameSeed, 2),
+      pitch: getScaleNote(config.scale, root, chord.root, 2),
       duration: '8n',
       velocity: 0.45,
       time: startTime + 0.375,
@@ -478,17 +602,17 @@ function mapVariable(element: CodeElement, config: ReturnType<typeof selectKeyAn
   return notes
 }
 
-function mapImport(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapImport(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
+  const chordTones = getChordToneDegrees(chord, config.scale)
 
-  for (let i = 0; i < 3; i++) {
-    const pitch = getScaleNote(config.scale, root, i, 5)
+  for (let i = 0; i < Math.min(3, chordTones.length); i++) {
     notes.push({
-      pitch,
+      pitch: getScaleNote(config.scale, root, chordTones[i], 5),
       duration: '8n',
-      velocity: 0.3 + i * 0.1,
+      velocity: 0.25 + i * 0.08,
       time: startTime + i * 0.15,
       instrument: styleCfg.padInstrument,
       effect: 'reverb',
@@ -498,35 +622,38 @@ function mapImport(element: CodeElement, config: ReturnType<typeof selectKeyAndS
   return notes
 }
 
-function mapComment(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapComment(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
 
-  const pitch = getScaleNote(config.scale, root, 6, 4)
-  notes.push({
-    pitch,
-    duration: '1n',
-    velocity: 0.2,
-    time: startTime,
-    instrument: styleCfg.padInstrument,
-    effect: 'reverb',
-  })
+  const chordPitches = getChordPitches(chord, root, config.scale, 4)
+  for (const p of chordPitches) {
+    notes.push({
+      pitch: p,
+      duration: '1n',
+      velocity: 0.15,
+      time: startTime,
+      instrument: styleCfg.padInstrument,
+      effect: 'reverb',
+    })
+  }
 
   return notes
 }
 
-function mapReturn(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapReturn(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
+  const chordTones = getChordToneDegrees(chord, config.scale)
 
-  for (let i = 0; i < 3; i++) {
-    const pitch = getScaleNote(config.scale, root, 6 - i * 2, 4 - Math.floor(i / 2))
+  for (let i = 0; i < Math.min(3, chordTones.length); i++) {
+    const idx = Math.min(i, chordTones.length - 1)
     notes.push({
-      pitch,
+      pitch: getScaleNote(config.scale, root, chordTones[chordTones.length - 1 - idx], 4 - Math.floor(i / 2)),
       duration: '8n',
-      velocity: 0.7 - i * 0.15,
+      velocity: 0.65 - i * 0.12,
       time: startTime + i * 0.2,
       instrument: styleCfg.defaultInstrument,
       effect: 'fadeout',
@@ -536,28 +663,26 @@ function mapReturn(element: CodeElement, config: ReturnType<typeof selectKeyAndS
   return notes
 }
 
-function mapClass(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapClass(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
 
-  const chordDegrees = [0, 2, 4, 6]
-  for (const deg of chordDegrees) {
-    const pitch = getScaleNote(config.scale, root, deg, 3)
+  const chordPitches = getChordPitches(chord, root, config.scale, 3)
+  for (const p of chordPitches) {
     notes.push({
-      pitch,
+      pitch: p,
       duration: '1n',
-      velocity: 0.6,
+      velocity: 0.5,
       time: startTime,
       instrument: styleCfg.padInstrument,
     })
   }
 
-  const melodyPitch = getScaleNote(config.scale, root, 0, 5)
   notes.push({
-    pitch: melodyPitch,
+    pitch: getScaleNote(config.scale, root, chord.root, 5),
     duration: '2n',
-    velocity: 0.8,
+    velocity: 0.75,
     time: startTime + 0.5,
     instrument: styleCfg.defaultInstrument,
   })
@@ -565,33 +690,42 @@ function mapClass(element: CodeElement, config: ReturnType<typeof selectKeyAndSc
   return notes
 }
 
-function mapTryCatch(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapTryCatch(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
   const notes: MusicalNote[] = []
 
   const isCatch = element.type === 'trycatch' && /catch|except/.test(element.name || '')
-  const pitch = isCatch
-    ? root + 1 + Math.random() * 2
-    : getScaleNote(config.scale, root, 5, 4)
+  const chordPitches = getChordPitches(chord, root, config.scale, 4)
 
-  notes.push({
-    pitch: Math.round(pitch),
-    duration: '4n',
-    velocity: isCatch ? 0.9 : 0.5,
-    time: startTime,
-    instrument: styleCfg.defaultInstrument,
-    effect: isCatch ? 'distortion' : undefined,
-  })
+  if (isCatch) {
+    notes.push({
+      pitch: chordPitches[0] + 1,
+      duration: '4n',
+      velocity: 0.85,
+      time: startTime,
+      instrument: styleCfg.defaultInstrument,
+      effect: 'distortion',
+    })
+  } else {
+    notes.push({
+      pitch: chordPitches[0],
+      duration: '4n',
+      velocity: 0.5,
+      time: startTime,
+      instrument: styleCfg.defaultInstrument,
+    })
+  }
 
   return notes
 }
 
-function mapDefault(element: CodeElement, config: ReturnType<typeof selectKeyAndScale>, style: MusicStyle, startTime: number): MusicalNote[] {
+function mapDefault(element: CodeElement, config: ConfigType, style: MusicStyle, startTime: number, chord: ChordDef): MusicalNote[] {
   const styleCfg = STYLE_CONFIG[style]
   const root = KEY_MAP[config.key]
-  const nameSeed = element.name ? nameToSeed(element.name) % 7 : Math.floor(Math.random() * 7)
-  const pitch = getScaleNote(config.scale, root, nameSeed, 3 + Math.min(element.depth, 2))
+  const chordTones = getChordToneDegrees(chord, config.scale)
+  const nameSeed = element.name ? nameToSeed(element.name) % chordTones.length : 0
+  const pitch = getScaleNote(config.scale, root, chordTones[nameSeed], 3 + Math.min(element.depth, 2))
 
   return [{
     pitch,
@@ -602,7 +736,9 @@ function mapDefault(element: CodeElement, config: ReturnType<typeof selectKeyAnd
   }]
 }
 
-const MAPPER_MAP: Record<CodeElementType, (el: CodeElement, cfg: ConfigType, style: MusicStyle, t: number) => MusicalNote[]> = {
+type MapperFn = (el: CodeElement, cfg: ConfigType, style: MusicStyle, t: number, chord: ChordDef) => MusicalNote[]
+
+const MAPPER_MAP: Record<CodeElementType, MapperFn> = {
   function: mapFunction,
   class: mapClass,
   loop: mapLoop,
@@ -625,12 +761,15 @@ export function mapCodeToMusic(parseResult: ParseResult, style: MusicStyle = 'el
   const bpm = selectBpm(parseResult.stats, style)
   const beatDuration = 60 / bpm
 
+  const chordEngine = new ChordProgressionEngine(config.scale, parseResult.elements.length)
+
   const sections: MusicalSection[] = []
   let currentTime = 0
 
   for (const element of parseResult.elements) {
     const mapper = MAPPER_MAP[element.type] || mapDefault
-    const notes = mapper(element, config, style, currentTime)
+    const chord = chordEngine.next()
+    const notes = mapper(element, config, style, currentTime, chord)
 
     const LABELS: Record<CodeElementType, string> = {
       function: '🎵 Function',
