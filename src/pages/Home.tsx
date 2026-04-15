@@ -207,7 +207,8 @@ int main() {
 }
 
 const STYLES: { value: MusicStyle; label: string; emoji: string }[] = [
-  { value: 'electronic', label: 'Electronic', emoji: '🎹' },
+  { value: 'piano', label: 'Piano', emoji: '🎹' },
+  { value: 'electronic', label: 'Electronic', emoji: '⚡' },
   { value: 'classical', label: 'Classical', emoji: '🎻' },
   { value: 'jazz', label: 'Jazz', emoji: '🎷' },
   { value: 'ambient', label: 'Ambient', emoji: '🌊' },
@@ -218,7 +219,7 @@ const STYLES: { value: MusicStyle; label: string; emoji: string }[] = [
 export default function Home() {
   const [code, setCode] = useState(SAMPLE_CODES.python)
   const [language, setLanguage] = useState('python')
-  const [style, setStyle] = useState<MusicStyle>('electronic')
+  const [style, setStyle] = useState<MusicStyle>('piano')
   const [isPlaying, setIsPlaying] = useState(false)
   const [music, setMusic] = useState<MusicResult | null>(null)
   const [parseResult, setParseResult] = useState<ParseResult | null>(null)

@@ -34,6 +34,33 @@ class Synthesizer {
     let synth: Tone.PolySynth
 
     switch (instrument) {
+      case 'GrandPiano':
+        synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' as const, partials: [1, 0.6, 0.3, 0.15, 0.08] },
+          envelope: { attack: 0.008, decay: 0.8, sustain: 0.35, release: 2.5 },
+          volume: -6,
+        })
+        break
+      case 'GrandPianoBass':
+        synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' as const, partials: [1, 0.4, 0.15] },
+          envelope: { attack: 0.01, decay: 1.0, sustain: 0.3, release: 2.0 },
+          volume: -8,
+        })
+        break
+      case 'GrandPianoPad':
+        synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' as const, partials: [1, 0.5, 0.2, 0.1] },
+          envelope: { attack: 0.15, decay: 0.6, sustain: 0.5, release: 3.0 },
+          volume: -10,
+        })
+        break
+      case 'SoftMallet':
+        synth = new Tone.PolySynth(Tone.MembraneSynth, {
+          envelope: { attack: 0.002, decay: 0.3, sustain: 0.0, release: 0.5 },
+          volume: -12,
+        })
+        break
       case 'Piano':
         synth = new Tone.PolySynth(Tone.Synth, {
           oscillator: { type: 'triangle' as const },
@@ -111,8 +138,11 @@ class Synthesizer {
         })
     }
 
-    const reverb = new Tone.Reverb({ decay: 2, wet: 0.3 })
-    const gain = new Tone.Gain(0.5)
+    const isGrandPiano = instrument.startsWith('GrandPiano') || instrument === 'SoftMallet'
+    const reverbDecay = isGrandPiano ? 4 : 2
+    const reverbWet = isGrandPiano ? 0.55 : 0.3
+    const reverb = new Tone.Reverb({ decay: reverbDecay, wet: reverbWet })
+    const gain = new Tone.Gain(isGrandPiano ? 0.7 : 0.5)
 
     synth.chain(gain, reverb, Tone.Destination)
 

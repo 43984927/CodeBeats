@@ -10,6 +10,7 @@ export type MusicalScale =
   | 'japanese'
 
 export type MusicStyle =
+  | 'piano'
   | 'electronic'
   | 'classical'
   | 'jazz'
@@ -67,6 +68,7 @@ const STYLE_CONFIG: Record<MusicStyle, {
   swingFactor: number
   reverbMix: number
 }> = {
+  piano: { bpm: 72, defaultInstrument: 'GrandPiano', bassInstrument: 'GrandPianoBass', drumInstrument: 'SoftMallet', padInstrument: 'GrandPianoPad', swingFactor: 0, reverbMix: 0.7 },
   electronic: { bpm: 128, defaultInstrument: 'Synth', bassInstrument: 'SynthBass', drumInstrument: 'Drums', padInstrument: 'Pad', swingFactor: 0, reverbMix: 0.3 },
   classical: { bpm: 90, defaultInstrument: 'Piano', bassInstrument: 'Cello', drumInstrument: 'Timpani', padInstrument: 'Strings', swingFactor: 0, reverbMix: 0.5 },
   jazz: { bpm: 110, defaultInstrument: 'Piano', bassInstrument: 'Bass', drumInstrument: 'Brushes', padInstrument: 'Vibraphone', swingFactor: 0.3, reverbMix: 0.4 },
