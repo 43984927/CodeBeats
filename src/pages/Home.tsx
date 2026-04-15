@@ -389,13 +389,10 @@ export default function Home() {
               margin: 0,
               fontSize: isMobile ? 18 : 22,
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #6366f1, #ec4899)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
             }}>
-              CodeBeats <span style={{ fontSize: isMobile ? 13 : 16, fontWeight: 400, opacity: 0.7 }}>代码节拍</span>
+              <span style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>CodeBeats</span> <span style={{ fontSize: isMobile ? 14 : 17, fontWeight: 600, color: '#a5b4fc' }}>代码节拍</span>
             </h1>
-            <p style={{ margin: 0, fontSize: isMobile ? 10 : 12, color: '#94a3b8' }}>听听你的代码什么声音</p>
+            <p style={{ margin: 0, fontSize: isMobile ? 10 : 12, color: '#94a3b8' }}>听听你的代码是什么声音</p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
