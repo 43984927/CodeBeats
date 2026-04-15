@@ -2,7 +2,7 @@
 
 # 🎵 CodeBeats 代码节拍
 
-**听听你的代码什么声音 / Hear What Your Code Sounds Like**
+**听听你的代码是什么声音 / Hear What Your Code Sounds Like**
 
 [![GitHub Stars](https://img.shields.io/github/stars/43984927/CodeBeats?style=social)](https://github.com/43984927/CodeBeats)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
