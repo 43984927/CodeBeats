@@ -724,6 +724,16 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      <footer style={{
+        textAlign: 'center',
+        padding: isMobile ? '12px 16px' : '16px 24px',
+        borderTop: '1px solid rgba(99, 102, 241, 0.15)',
+        color: '#64748b',
+        fontSize: isMobile ? 11 : 12,
+      }}>
+        Made with 🎵 by <a href="https://github.com/chanzs" target="_blank" rel="noopener noreferrer" style={{ color: '#a5b4fc', textDecoration: 'none', fontWeight: 600 }}>chanzs</a> · <a href="https://github.com/43984927/CodeBeats" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none' }}>GitHub</a>
+      </footer>
     </div>
   )
 }

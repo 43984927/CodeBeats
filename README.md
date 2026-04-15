@@ -191,6 +191,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
+### 👤 Author
+
+**chanzs** - [GitHub](https://github.com/chanzs)
+
 ---
 
 <a id="中文"></a>
@@ -357,6 +361,10 @@ CodeBeats/
 ### 📄 许可证
 
 本项目基于 MIT 许可证开源 — 详见 [LICENSE](LICENSE) 文件。
+
+### 👤 作者
+
+**chanzs** - [GitHub](https://github.com/chanzs)
 
 ---
 

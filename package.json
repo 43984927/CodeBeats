@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Transform your code into music - hear what your code sounds like",
+  "author": "chanzs",
   "type": "module",
   "scripts": {
     "dev": "vite",
